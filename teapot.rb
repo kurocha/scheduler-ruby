@@ -9,13 +9,11 @@ end
 # Build Targets
 
 define_target 'scheduler-ruby-library' do |target|
-	target.provides :scheduler => 'Ruby/Scheduler'
-	
 	target.depends 'Language/C++17'
 	target.depends 'Build/Compile/Commands'
 	
 	target.depends "Library/Time", public: true
-	target.depends "Library/ruby"
+	target.depends "Library/ruby", public: true
 	
 	target.provides 'Library/Scheduler' do
 		source_root = target.package.path + 'source'
@@ -33,7 +31,7 @@ end
 
 define_configuration 'development' do |configuration|
 	configuration[:source] = "https://github.com/kurocha"
-	configuration.import "scheduler"
+	configuration.import "scheduler-ruby"
 	
 	# Provides all the build related infrastructure:
 	configuration.require 'platforms'

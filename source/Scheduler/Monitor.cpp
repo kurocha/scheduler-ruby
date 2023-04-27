@@ -7,104 +7,28 @@
 //
 
 #include "Monitor.hpp"
-#include "Defer.hpp"
 
-#include <Concurrent/Fiber.hpp>
-
-#include <cassert>
-#include <iostream>
+#include <ruby/io.h>
 
 namespace Scheduler
 {
-	using namespace Concurrent;
-	
-	Monitor::~Monitor()
+	Monitor::Monitor(Descriptor descriptor) : _descriptor(descriptor)
 	{
-		remove();
+		_io = rb_io_fdopen(_descriptor, 0, NULL);
 	}
 	
 	void Monitor::wait_readable()
 	{
-		this->wait(Event::READABLE);
+		rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
 	}
 	
 	void Monitor::wait_writable()
 	{
-		this->wait(Event::WRITABLE);
+		rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
 	}
 	
-#if defined(SCHEDULER_KQUEUE)
-	void Monitor::wait(Monitor::Event events)
+	void Monitor::wait(Event event)
 	{
-		assert(Fiber::current);
-		assert(Reactor::current);
-		
-		_added = Fiber::current;
-		_reactor = Reactor::current;
-		_events = events;
-		
-		_reactor->append({
-			static_cast<uintptr_t>(_descriptor),
-			events,
-			EV_ADD | EV_CLEAR | EV_ONESHOT | EV_UDATA_SPECIFIC,
-			0,
-			0,
-			(void*)Fiber::current
-		}, false);
-		
-		auto defer_removal = defer([&]{
-			remove();
-		});
-		
-		_reactor->transfer();
-		
-		defer_removal.cancel();
-		_added = nullptr;
-	}
-#elif defined(SCHEDULER_EPOLL)
-	void Monitor::wait(Monitor::Event events)
-	{
-		assert(Fiber::current);
-		assert(Reactor::current);
-		
-		_added = Fiber::current;
-		_reactor = Reactor::current;
-		_events = events;
-		
-		_reactor->append(EPOLL_CTL_ADD, _descriptor, events | EPOLLET | EPOLLONESHOT, (void*)Fiber::current);
-		
-		auto defer_removal = defer([&]{
-			remove();
-		});
-		
-		_reactor->transfer();
-		
-		defer_removal.cancel();
-		_added = nullptr;
-	}
-#endif
-
-	void Monitor::remove()
-	{
-		if (_added) {
-			auto added = _added;
-			_added = nullptr;
-			
-#if defined(SCHEDULER_KQUEUE)
-			_reactor->append({
-				static_cast<uintptr_t>(_descriptor),
-				_events,
-				EV_DELETE | EV_UDATA_SPECIFIC,
-				0,
-				0,
-				added
-			});
-#elif defined(SCHEDULER_EPOLL)
-			_reactor->append(EPOLL_CTL_DEL, _descriptor, 0, nullptr);
-#endif
-			
-			_reactor = nullptr;
-			_events = NONE;
-		}
+		rb_io_wait(_io, RB_INT2NUM(event), Qnil);
 	}
 }

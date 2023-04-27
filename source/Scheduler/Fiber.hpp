@@ -19,15 +19,13 @@ namespace Scheduler
 		std::function<void()> _function;
 		
 	public:
+		static thread_local Fiber *current;
+		
 		Fiber(std::function<void()> function);
 		~Fiber();
 		
 		void resume();
 		void yield();
 		void transfer();
-		
-		~Fiber()
-		{
-		}
 	};
 }

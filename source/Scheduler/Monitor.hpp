@@ -8,25 +8,22 @@
 
 #pragma once
 
-#include "Reactor.hpp"
+#include <ruby.h>
 
 namespace Scheduler
 {
+	using Descriptor = int;
+	
 	class Monitor final
 	{
 	public:
-		Monitor(Descriptor descriptor) : _descriptor(descriptor) {}
-		~Monitor();
+		Monitor(Descriptor descriptor);
+		~Monitor() {}
 		
-		enum Event : int16_t {
+		enum Event {
 			NONE = 0,
-#if defined(SCHEDULER_KQUEUE)
-			READABLE = EVFILT_READ,
-			WRITABLE = EVFILT_WRITE,
-#elif defined(SCHEDULER_EPOLL)
-			READABLE = EPOLLIN,
-			WRITABLE = EPOLLOUT,
-#endif
+			READABLE = RB_IO_WAIT_READABLE,
+			WRITABLE = RB_IO_WAIT_WRITABLE,
 		};
 		
 		void wait_readable();
@@ -35,14 +32,7 @@ namespace Scheduler
 		void wait(Event event);
 		
 	protected:
-		void remove();
-		
-		Fiber *_added = nullptr;
-		Reactor *_reactor = nullptr;
-		Event _events = NONE;
-		
 		Descriptor _descriptor;
-		
-		void append();
+		VALUE _io = Qnil;
 	};
 }

@@ -1,0 +1,52 @@
+---
+platforms:
+  :commit: 53bfdd34201790980ba8f4c335dbf659d038eb06
+  :branch: master
+unit-test:
+  :commit: b02cb3d26fffb158f111aade1bbd196f4e0aae89
+  :branch: master
+generate-cpp-class:
+  :commit: b8996bd1404904a737b76d6893fc9f9bf78da540
+  :branch: master
+generate-project:
+  :commit: 2515e20b576c1a7dc5c5d2c1e14dea06ff5159ab
+  :branch: master
+build-compile-commands:
+  :commit: 1c4b18f86d45426d7dd284c28bc53837e5694b6c
+  :branch: main
+variants:
+  :commit: f6a26a8ac3a47a23a213cbd15da2183239d394d1
+  :branch: master
+platform-darwin-osx:
+  :commit: b3abd55300d433236f97f3450fe05cab7c865214
+  :branch: master
+platform-darwin-ios:
+  :commit: c81ccc5ee73cb1c6ae31e378148c4cb8c9f8759e
+  :branch: master
+build-clang:
+  :commit: 1c9be15a63c149f6decf8d0599b34755aa3b0979
+  :branch: master
+build-darwin:
+  :commit: 0d68478a7754741dd5d360f70294161efdee030d
+  :branch: master
+build-files:
+  :commit: 2e5392ef4e171885b621288c7829e5160f1255bf
+  :branch: master
+executor-unix:
+  :commit: 91f433a59550b826f7bc69e36d1df9c6e5576575
+  :branch: master
+executor-lldb:
+  :commit: 193ba0b15c532d2745b0f0bfb05cd9581e869555
+  :branch: master
+streams:
+  :commit: 2f9141de26e5331ab35fc91c03ab6a60317bbf7c
+  :branch: master
+generate-template:
+  :commit: ad0dcfb6da64cc0508b71916b30e1050c82ecea7
+  :branch: master
+time:
+  :commit: f96b70a2676522baacaf4229f034b41a837b9ff5
+  :branch: master
+ruby:
+  :commit: 3421a91f32deb5700329b1d30bb5b6feaa39cdcc
+  :branch: main

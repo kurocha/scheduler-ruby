@@ -8,10 +8,12 @@
 
 #pragma once
 
-#include "Reactor.hpp"
+#include <Time/Interval.hpp>
 
 namespace Scheduler
 {
+	using Time::Interval;
+	
 	class After final
 	{
 	public:
