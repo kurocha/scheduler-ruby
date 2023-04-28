@@ -14,21 +14,24 @@ namespace Scheduler
 {
 	Monitor::Monitor(Descriptor descriptor) : _descriptor(descriptor)
 	{
-		_io = rb_io_fdopen(_descriptor, 0, NULL);
+		// _io = rb_io_fdopen(_descriptor, (1<<16), NULL);
 	}
 	
 	void Monitor::wait_readable()
 	{
-		rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
+		rb_wait_for_single_fd(_descriptor, RB_IO_WAIT_READABLE, NULL);
+		// rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
 	}
 	
 	void Monitor::wait_writable()
 	{
-		rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
+		rb_wait_for_single_fd(_descriptor, RB_IO_WAIT_WRITABLE, NULL);
+		// rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
 	}
 	
-	void Monitor::wait(Event event)
+	void Monitor::wait(Event events)
 	{
-		rb_io_wait(_io, RB_INT2NUM(event), Qnil);
+		rb_wait_for_single_fd(_descriptor, events, NULL);
+		// rb_io_wait(_io, RB_INT2NUM(event), Qnil);
 	}
 }
