@@ -9,10 +9,12 @@
 #pragma once
 
 #include <ruby.h>
+#include <Time/Interval.hpp>
 
 namespace Scheduler
 {
 	using Descriptor = int;
+	using Timestamp = Time::Timestamp;
 	
 	class Monitor final
 	{
@@ -26,10 +28,10 @@ namespace Scheduler
 			WRITABLE = RB_IO_WAIT_WRITABLE,
 		};
 		
-		void wait_readable();
-		void wait_writable();
+		Event wait_readable(const Timestamp * timeout = nullptr);
+		Event wait_writable(const Timestamp * timeout = nullptr);
 		
-		void wait(Event event);
+		Event wait(Event event, const Timestamp * timeout = nullptr);
 		
 	protected:
 		Descriptor _descriptor;

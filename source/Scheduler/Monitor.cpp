@@ -9,29 +9,49 @@
 #include "Monitor.hpp"
 
 #include <ruby/io.h>
+#include <fcntl.h>
 
 namespace Scheduler
 {
 	Monitor::Monitor(Descriptor descriptor) : _descriptor(descriptor)
 	{
-		// _io = rb_io_fdopen(_descriptor, (1<<16), NULL);
+		_io = rb_io_open_descriptor(rb_cIO, _descriptor, O_RDWR | RUBY_IO_MODE_EXTERNAL, Qnil, Qnil, NULL);
 	}
 	
-	void Monitor::wait_readable()
+	Monitor::Event Monitor::wait_readable(const Timestamp * timeout)
 	{
-		rb_wait_for_single_fd(_descriptor, RB_IO_WAIT_READABLE, NULL);
-		// rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
+		return wait(Event::READABLE, timeout);
 	}
 	
-	void Monitor::wait_writable()
+	Monitor::Event Monitor::wait_writable(const Timestamp * timeout)
 	{
-		rb_wait_for_single_fd(_descriptor, RB_IO_WAIT_WRITABLE, NULL);
-		// rb_io_wait(_io, RB_INT2NUM(RB_IO_WAIT_READABLE), Qnil);
+		return wait(Event::WRITABLE, timeout);
 	}
 	
-	void Monitor::wait(Event events)
+	Monitor::Event Monitor::wait(Event events, const Timestamp * timeout)
 	{
-		rb_wait_for_single_fd(_descriptor, events, NULL);
-		// rb_io_wait(_io, RB_INT2NUM(event), Qnil);
+		VALUE timeout_value = Qnil;
+		
+		if (timeout) {
+			Timestamp now;
+			auto duration = *timeout - now;
+			
+			if (duration.as_seconds() <= 0) {
+				// Already timed out
+				return Event::NONE;
+			}
+			
+			timeout_value = rb_float_new(duration.as_seconds());
+		}
+		
+		VALUE result = rb_io_wait(_io, RB_INT2NUM(events), timeout_value);
+		
+		if (result == Qfalse) {
+			// Timeout occurred
+			return Event::NONE;
+		}
+		
+		// Return the event that occurred
+		return static_cast<Event>(RB_NUM2INT(result));
 	}
 }
