@@ -11,6 +11,10 @@
 #include <ruby/io.h>
 #include <fcntl.h>
 
+#ifndef RUBY_IO_MODE_EXTERNAL
+#define RUBY_IO_MODE_EXTERNAL FMODE_EXTERNAL
+#endif
+
 namespace Scheduler
 {
 	Monitor::Monitor(Descriptor descriptor) : _descriptor(descriptor)
