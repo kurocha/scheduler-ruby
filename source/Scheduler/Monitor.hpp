@@ -9,6 +9,7 @@
 #pragma once
 
 #include <ruby.h>
+#include <ruby/io.h>
 #include <Time/Interval.hpp>
 
 namespace Scheduler
@@ -24,8 +25,8 @@ namespace Scheduler
 		
 		enum Event {
 			NONE = 0,
-			READABLE = RB_IO_WAIT_READABLE,
-			WRITABLE = RB_IO_WAIT_WRITABLE,
+			READABLE = RUBY_IO_READABLE,
+			WRITABLE = RUBY_IO_WRITABLE,
 		};
 		
 		Event wait_readable(const Timestamp * timeout = nullptr);
