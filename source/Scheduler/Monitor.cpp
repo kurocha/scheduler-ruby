@@ -22,6 +22,25 @@ namespace Scheduler
 		_io = rb_io_open_descriptor(rb_cIO, _descriptor, O_RDWR | RUBY_IO_MODE_EXTERNAL, Qnil, Qnil, NULL);
 	}
 	
+	Monitor::Monitor(Monitor && other) :
+		_descriptor(other._descriptor),
+		_io(other._io)
+	{
+		other._descriptor = -1;
+		other._io = Qnil;
+	}
+	
+	Monitor & Monitor::operator=(Monitor && other)
+	{
+		_descriptor = other._descriptor;
+		_io = other._io;
+		
+		other._descriptor = -1;
+		other._io = Qnil;
+		
+		return *this;
+	}
+	
 	Monitor::Event Monitor::wait_readable(const Timestamp * timeout)
 	{
 		return wait(Event::READABLE, timeout);
@@ -57,5 +76,15 @@ namespace Scheduler
 		
 		// Return the event that occurred
 		return static_cast<Event>(RB_NUM2INT(result));
+	}
+	
+	void Monitor::mark()
+	{
+		rb_gc_mark_movable(_io);
+	}
+	
+	void Monitor::compact()
+	{
+		_io = rb_gc_location(_io);
 	}
 }

@@ -23,6 +23,12 @@ namespace Scheduler
 		Monitor(Descriptor descriptor);
 		~Monitor() {}
 		
+		Monitor(Monitor && other);
+		Monitor & operator=(Monitor && other);
+		
+		Monitor(const Monitor &) = delete;
+		Monitor & operator=(const Monitor &) = delete;
+		
 		enum Event {
 			NONE = 0,
 			READABLE = RUBY_IO_READABLE,
@@ -33,6 +39,9 @@ namespace Scheduler
 		Event wait_writable(const Timestamp * timeout = nullptr);
 		
 		Event wait(Event event, const Timestamp * timeout = nullptr);
+		
+		void mark();
+		void compact();
 		
 	protected:
 		Descriptor _descriptor;
