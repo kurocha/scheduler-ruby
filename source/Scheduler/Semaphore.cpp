@@ -47,7 +47,7 @@ namespace Scheduler
 	
 	bool Semaphore::wait(const Timestamp * timeout)
 	{
-		VALUE timeout_value = Qnil;
+		VALUE result = Qnil;
 		
 		if (timeout) {
 			Timestamp now;
@@ -58,11 +58,15 @@ namespace Scheduler
 				return false;
 			}
 			
-			timeout_value = rb_float_new(duration.as_seconds());
+			// The timeout must be a keyword argument: the positional argument of `Queue#pop` is `non_block`, which raises ThreadError instead of waiting when the queue is empty.
+			VALUE options = rb_hash_new();
+			rb_hash_aset(options, ID2SYM(rb_intern("timeout")), rb_float_new(duration.as_seconds()));
+			
+			result = rb_funcallv_kw(_queue, rb_intern("pop"), 1, &options, RB_PASS_KEYWORDS);
 		}
-		
-		// Pop from queue with timeout
-		VALUE result = rb_funcall(_queue, rb_intern("pop"), 1, timeout_value);
+		else {
+			result = rb_funcall(_queue, rb_intern("pop"), 0);
+		}
 		
 		// nil return means timeout
 		return result != Qnil;
